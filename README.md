@@ -215,3 +215,7 @@ It prioritizes:
 - Traceability
 - Controlled uncertainty
 - Human review and oversight
+
+# Sample test
+
+<img width="1200" height="521" alt="EdYJ7x-WoAAUHZQ" src="https://github.com/user-attachments/assets/a2cc2cfb-847a-498d-88f0-ce6abacddb1a" />
