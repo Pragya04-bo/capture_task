@@ -1,9 +1,11 @@
-import express from "express";
+ import express from "express";
 import multer from "multer";
 import Image from "../models/Image.js";
 import Tesseract from "tesseract.js";
 import { GoogleGenAI } from "@google/genai";
 import dotenv from "dotenv";
+import sharp from "sharp";
+
 
 dotenv.config();
 
@@ -15,6 +17,7 @@ const ai = new GoogleGenAI({
 
 const LLM_MODEL = "gemma-4-26b-a4b-it";
 
+/* ---------------- MULTER ---------------- */
 const storage = multer.diskStorage({
   destination: "uploads/",
   filename: (req, file, cb) => {
@@ -24,6 +27,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
+/* ---------------- CONFIDENCE ---------------- */
 function getWordConfidence(words, value) {
   if (!value) return 0;
 
@@ -42,25 +46,20 @@ function getWordConfidence(words, value) {
   if (!matches.length) return 0;
 
   const avg =
-    matches.reduce(
-      (sum, w) => sum + (w.confidence || 0),
-      0
-    ) / matches.length;
+    matches.reduce((sum, w) => sum + (w.confidence || 0), 0) /
+    matches.length;
 
   return Math.round(avg);
 }
 
-// Check for duplicates
+/* ---------------- DUPLICATE CHECK ---------------- */
 async function checkDuplicates(extractedFields) {
   const vehicle = extractedFields.vehicleNumber?.value;
   const weight = extractedFields.grossWeight?.value;
 
   if (!vehicle || !weight) return null;
 
-  // Find similar captures from last 24 hours
-  const yesterday = new Date(
-    Date.now() - 24 * 60 * 60 * 1000
-  );
+  const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
   const duplicates = await Image.findOne({
     uploadedAt: { $gte: yesterday },
@@ -71,7 +70,7 @@ async function checkDuplicates(extractedFields) {
   return duplicates ? duplicates._id : null;
 }
 
-// Auto-approve if all confidences > 85%
+/* ---------------- AUTO APPROVAL ---------------- */
 function shouldAutoApprove(extractedFields) {
   const confidences = [
     extractedFields.billNo?.confidence || 0,
@@ -81,28 +80,27 @@ function shouldAutoApprove(extractedFields) {
     extractedFields.netWeight?.confidence || 0,
   ];
 
-  const avgConfidence =
-    confidences.reduce((a, b) => a + b, 0) /
-    confidences.length;
+  const avg =
+    confidences.reduce((a, b) => a + b, 0) / confidences.length;
 
-  return avgConfidence > 85;
+  return avg > 85;
 }
 
-// Get auto-approved fields
+/* ---------------- FIELD APPROVAL ---------------- */
 function getAutoApprovedFields(extractedFields) {
   const autoApproved = [];
+
   Object.keys(extractedFields).forEach((field) => {
-    if (
-      (extractedFields[field]?.confidence || 0) >
-      85
-    ) {
+    if ((extractedFields[field]?.confidence || 0) > 85) {
       autoApproved.push(field);
     }
   });
+
   return autoApproved;
 }
 
-async function extractWithGemma(ocrText) {
+/* ---------------- GEMMA EXTRACTION ---------------- */
+ async function extractWithGemma(ocrText) {
   try {
     const prompt = `Extract fields from weighbridge OCR text.
 
@@ -153,54 +151,56 @@ ${ocrText}`;
   }
 }
 
-// POST - Upload and process image
+/* =========================================================
+   POST - UPLOAD + OCR + GEMMA
+========================================================= */
 router.post("/", upload.single("image"), async (req, res) => {
+  let worker;
+
   try {
     console.log("Processing:", req.file.path);
 
-    // const result = await Tesseract.recognize(
-    //   req.file.path,
-    //   "eng"
-    // );
+    /* ---------------- OCR ---------------- */
+    worker = await Tesseract.createWorker("eng");
 
-    // let extractedText = result.data.text;
-    // const confidence = result.data.confidence;
-    // const words = result.data.words || [];
+     
+  // Create OCR-enhanced image
+const enhancedPath = req.file.path + "_ocr.png";
 
-    // console.log("===== OCR OUTPUT =====");
-    // console.log(extractedText);
-    const result = await Tesseract.recognize(
-  req.file.path,
-  "eng"
-);
+await sharp(req.file.path)
+  .grayscale()
+  .normalize()
+  .sharpen()
+  .png()
+  .toFile(enhancedPath);
 
-console.log("===== RAW OCR TEXT =====");
-console.log(result.data.text);
+await worker.setParameters({
+  tessedit_pageseg_mode: 6,
+});
 
-console.log("===== OCR CONFIDENCE =====");
-console.log(result.data.confidence);
+// OCR on enhanced image
+const result = await worker.recognize(enhancedPath);
 
-let extractedText = result.data.text;
-const confidence = result.data.confidence;
-const words = result.data.words || [];
+    let extractedText = result.data.text;
+    const confidence = result.data.confidence;
+    const words = result.data.words || [];
 
-console.log("===== OCR OUTPUT =====");
-console.log(extractedText);
+    console.log("===== OCR TEXT =====");
+    console.log(extractedText);
 
-    extractedText = extractedText.replace(
-      /\s+/g,
-      " "
-    );
+    console.log("===== CONFIDENCE =====");
+    console.log(confidence);
 
-    // Extract with Gemma
-    const gemmaResult =
-      await extractWithGemma(extractedText);
+    extractedText = extractedText.replace(/\s+/g, " ");
 
+    /* ---------------- GEMMA ---------------- */
+    const gemmaResult = await extractWithGemma(extractedText);
+
+    /* ---------------- CLEANUP ---------------- */
+    await worker.terminate();
+
+    /* ---------------- FAILURE CASE ---------------- */
     if (!gemmaResult) {
-      console.error(
-        "Gemma failed, saving for review"
-      );
-
       const imageRecord = await Image.create({
         imagePath: req.file.path,
         status: "uploaded",
@@ -208,38 +208,7 @@ console.log(extractedText);
         processingStatus: "needs_review",
         ocrText: extractedText,
         ocrConfidence: confidence,
-        extractedFields: {
-          billNo: {
-            value: "",
-            confidence: 0,
-            extractionMethod: "gemma",
-            isHumanCorrected: false,
-          },
-          vehicleNumber: {
-            value: "",
-            confidence: 0,
-            extractionMethod: "gemma",
-            isHumanCorrected: false,
-          },
-          grossWeight: {
-            value: "",
-            confidence: 0,
-            extractionMethod: "gemma",
-            isHumanCorrected: false,
-          },
-          tareWeight: {
-            value: "",
-            confidence: 0,
-            extractionMethod: "gemma",
-            isHumanCorrected: false,
-          },
-          netWeight: {
-            value: "",
-            confidence: 0,
-            extractionMethod: "gemma",
-            isHumanCorrected: false,
-          },
-        },
+        extractedFields: {},
         llmModel: LLM_MODEL,
         extractedAt: new Date(),
         uploadedAt: new Date(),
@@ -250,90 +219,48 @@ console.log(extractedText);
 
       return res.status(201).json({
         success: true,
-        message:
-          "Image uploaded. Processing failed, marked for review.",
+        message: "OCR done but extraction failed",
         imageRecord,
       });
     }
 
+    /* ---------------- FIELD MAPPING ---------------- */
     const billNo = gemmaResult.billNo || "";
-    const vehicleNumber =
-      gemmaResult.vehicleNumber || "";
-    const grossWeight =
-      gemmaResult.grossWeight || "";
-    const tareWeight =
-      gemmaResult.tareWeight || "";
+    const vehicleNumber = gemmaResult.vehicleNumber || "";
+    const grossWeight = gemmaResult.grossWeight || "";
+    const tareWeight = gemmaResult.tareWeight || "";
     const netWeight = gemmaResult.netWeight || "";
 
-    // Calculate confidences
-    const billConfidence =
-      getWordConfidence(words, billNo);
-    const vehicleConfidence =
-      getWordConfidence(words, vehicleNumber);
-    const grossConfidence =
-      getWordConfidence(words, grossWeight);
-    const tareConfidence =
-      getWordConfidence(words, tareWeight);
-    const netConfidence =
-      getWordConfidence(words, netWeight);
+    const billConfidence = getWordConfidence(words, billNo);
+    const vehicleConfidence = getWordConfidence(words, vehicleNumber);
+    const grossConfidence = getWordConfidence(words, grossWeight);
+    const tareConfidence = getWordConfidence(words, tareWeight);
+    const netConfidence = getWordConfidence(words, netWeight);
 
     const extractedFields = {
-      billNo: {
-        value: billNo,
-        confidence: billConfidence,
-        extractionMethod: "gemma",
-        isHumanCorrected: false,
-      },
-      vehicleNumber: {
-        value: vehicleNumber,
-        confidence: vehicleConfidence,
-        extractionMethod: "gemma",
-        isHumanCorrected: false,
-      },
-      grossWeight: {
-        value: grossWeight,
-        confidence: grossConfidence,
-        extractionMethod: "gemma",
-        isHumanCorrected: false,
-      },
-      tareWeight: {
-        value: tareWeight,
-        confidence: tareConfidence,
-        extractionMethod: "gemma",
-        isHumanCorrected: false,
-      },
-      netWeight: {
-        value: netWeight,
-        confidence: netConfidence,
-        extractionMethod: "gemma",
-        isHumanCorrected: false,
-      },
+      billNo: { value: billNo, confidence: billConfidence },
+      vehicleNumber: { value: vehicleNumber, confidence: vehicleConfidence },
+      grossWeight: { value: grossWeight, confidence: grossConfidence },
+      tareWeight: { value: tareWeight, confidence: tareConfidence },
+      netWeight: { value: netWeight, confidence: netConfidence },
     };
 
-    console.log("===== EXTRACTED FIELDS =====");
-    console.log(extractedFields);
+    /* ---------------- DUPLICATES ---------------- */
+    const duplicateId = await checkDuplicates(extractedFields);
 
-    // Check for duplicates
-    const duplicateId = await checkDuplicates(
-      extractedFields
-    );
-
-    // Get auto-approved fields
+    /* ---------------- AUTO APPROVAL ---------------- */
     const autoApprovedFields =
       getAutoApprovedFields(extractedFields);
 
-    // Determine status
     let processingStatus = "needs_review";
     let autoApprovedAt = null;
 
-    if (
-      shouldAutoApprove(extractedFields) &&
-      !duplicateId
-    ) {
+    if (shouldAutoApprove(extractedFields) && !duplicateId) {
       processingStatus = "auto_approved";
       autoApprovedAt = new Date();
     }
 
+    /* ---------------- SAVE ---------------- */
     const imageRecord = await Image.create({
       imagePath: req.file.path,
       status: "uploaded",
@@ -353,188 +280,75 @@ console.log(extractedText);
       autoApprovedAt,
     });
 
-    console.log("===== AUTO-APPROVAL =====");
-    console.log("Status:", processingStatus);
-    console.log("Duplicate:", !!duplicateId);
-    console.log("Auto-Approved Fields:", autoApprovedFields);
-
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
-      message: "Image uploaded successfully",
+      message: "Image processed successfully",
       imageRecord,
     });
   } catch (error) {
-    console.error("Error:", error);
+    console.error("UPLOAD ERROR:", error);
 
-    res.status(500).json({
+    if (worker) {
+      try {
+        await worker.terminate();
+      } catch (e) {}
+    }
+
+    return res.status(500).json({
       success: false,
       message: error.message,
     });
   }
 });
 
-// GET - All captures
+/* ---------------- ROUTES ---------------- */
 router.get("/", async (req, res) => {
-  try {
-    const captures = await Image.find().sort({
-      uploadedAt: -1,
-    });
-
-    res.json(captures);
-  } catch (error) {
-    res.status(500).json({
-      message: error.message,
-    });
-  }
+  const data = await Image.find().sort({ uploadedAt: -1 });
+  res.json(data);
 });
 
-// GET - Single capture
 router.get("/:id", async (req, res) => {
-  try {
-    const capture = await Image.findById(
-      req.params.id
-    );
-
-    if (!capture) {
-      return res.status(404).json({
-        success: false,
-        message: "Capture not found",
-      });
-    }
-
-    res.json(capture);
-  } catch (error) {
-    res.status(500).json({
-      message: error.message,
-    });
-  }
+  const data = await Image.findById(req.params.id);
+  res.json(data);
 });
 
-// PUT - Save corrections
 router.put("/:id/review", async (req, res) => {
-  try {
-    const { corrections } = req.body;
+  const { corrections } = req.body;
 
-    const image = await Image.findById(
-      req.params.id
-    );
+  const image = await Image.findById(req.params.id);
+  if (!image) return res.status(404).json({ message: "Not found" });
 
-    if (!image) {
-      return res.status(404).json({
-        success: false,
-        message: "Image not found",
-      });
-    }
+  const updated = await Image.findByIdAndUpdate(
+    req.params.id,
+    {
+      extractedFields: corrections,
+      reviewed: true,
+      reviewedAt: new Date(),
+      processingStatus: "reviewed",
+    },
+    { new: true }
+  );
 
-    const auditLogs = [];
-    const humanCorrectedFields = [];
-
-    Object.keys(corrections).forEach((field) => {
-      const oldValue =
-        image.extractedFields[field]?.value;
-      const newValue =
-        corrections[field]?.value;
-
-      if (oldValue !== newValue) {
-        auditLogs.push({
-          field,
-          oldValue: oldValue || "",
-          newValue: newValue || "",
-          correctedAt: new Date(),
-        });
-
-        // Mark as human corrected
-        humanCorrectedFields.push(field);
-      }
-    });
-
-    console.log("===== AUDIT TRAIL =====");
-    console.log(auditLogs);
-    console.log("Human Corrected:", humanCorrectedFields);
-
-    // Update extracted fields with human correction flag
-    const updatedFields = { ...corrections };
-    humanCorrectedFields.forEach((field) => {
-      if (updatedFields[field]) {
-        updatedFields[field].isHumanCorrected = true;
-      }
-    });
-
-    const updated = await Image.findByIdAndUpdate(
-      req.params.id,
-      {
-        extractedFields: updatedFields,
-        reviewed: true,
-        reviewedAt: new Date(),
-        processingStatus: "reviewed",
-        humanCorrectedFields,
-        $push: {
-          reviewerCorrections: {
-            $each: auditLogs,
-          },
-        },
-      },
-      { new: true }
-    );
-
-    res.json({
-      success: true,
-      message: "Corrections saved",
-      data: updated,
-    });
-  } catch (error) {
-    console.error("Review Error:", error);
-
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
+  res.json(updated);
 });
 
-// PUT - Flag for review
 router.put("/:id/flag", async (req, res) => {
-  try {
-    const { reason } = req.body;
+  const updated = await Image.findByIdAndUpdate(
+    req.params.id,
+    {
+      processingStatus: "flagged",
+      flaggedReason: req.body.reason,
+      flaggedAt: new Date(),
+    },
+    { new: true }
+  );
 
-    const updated = await Image.findByIdAndUpdate(
-      req.params.id,
-      {
-        processingStatus: "flagged",
-        flaggedReason: reason,
-        flaggedAt: new Date(),
-      },
-      { new: true }
-    );
-
-    res.json({
-      success: true,
-      message: "Capture flagged",
-      data: updated,
-    });
-  } catch (error) {
-    res.status(500).json({
-      message: error.message,
-    });
-  }
+  res.json(updated);
 });
 
-// GET - Find duplicates
-router.get(
-  "/duplicates/search",
-  async (req, res) => {
-    try {
-      const duplicates = await Image.find({
-        isDuplicate: true,
-      }).sort({ uploadedAt: -1 });
-
-      res.json(duplicates);
-    } catch (error) {
-      res.status(500).json({
-        message: error.message,
-      });
-    }
-  }
-);
+router.get("/duplicates/search", async (req, res) => {
+  const data = await Image.find({ isDuplicate: true });
+  res.json(data);
+});
 
 export default router;

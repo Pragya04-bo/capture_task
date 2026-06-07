@@ -4,7 +4,13 @@ import dotenv from "dotenv";
 import cors from "cors";
 import uploadRoutes from "./routes/upload.js";
 
-dotenv.config();
+ import fs from "fs";
+
+if (!fs.existsSync("uploads")) {
+  fs.mkdirSync("uploads");
+}
+
+ dotenv.config();
 
 const app = express();
 app.use(cors());
