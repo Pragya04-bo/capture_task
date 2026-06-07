@@ -56,7 +56,7 @@ function App() {
         formData.append("image", doc.file);
 
         const response = await fetch(
-          "http://localhost:5000/upload",
+          "https://capture-task.onrender.com/upload",
           {
             method: "POST",
             body: formData,
@@ -105,7 +105,7 @@ function App() {
     const formData = new FormData();
     formData.append("image", file);
 
-    await fetch("http://localhost:5000/upload", {
+    await fetch("https://capture-task.onrender.com/upload", {
       method: "POST",
       body: formData,
     });
@@ -176,7 +176,7 @@ function App() {
       formData.append("image", preprocessed);
 
       const response = await fetch(
-        "http://localhost:5000/upload",
+        "https://capture-task.onrender.com/upload",
         {
           method: "POST",
           body: formData,
@@ -363,7 +363,7 @@ function App() {
                   );
 
                   await fetch(
-                    "http://localhost:5000/upload",
+                    "https://capture-task.onrender.com/upload",
                     {
                       method: "POST",
                       body: formData,

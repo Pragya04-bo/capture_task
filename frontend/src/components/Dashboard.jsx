@@ -17,8 +17,7 @@ export default function Dashboard() {
   const fetchCaptures = async () => {
     try {
       const response = await fetch(
-        "http://localhost:5000/upload"
-      );
+ "https://capture-task.onrender.com/upload");
       const data = await response.json();
       setCaptures(data);
       calculateStats(data);

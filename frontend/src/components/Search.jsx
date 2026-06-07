@@ -49,7 +49,7 @@ export default function Search() {
   const fetchCaptures = async () => {
     try {
       const response = await fetch(
-        "http://localhost:5000/upload"
+        "https://capture-task.onrender.com/upload"
       );
       const data = await response.json();
       setCaptures(data);
@@ -497,7 +497,7 @@ export default function Search() {
               }}
             >
               <img
-                src={`http://localhost:5000/${c.imagePath.replace(/\\/g, "/")}`}
+                src={`https://capture-task.onrender.com/${c.imagePath.replace(/\\/g, "/")}`}
                 alt="capture"
                 style={{
                   width: "100%",

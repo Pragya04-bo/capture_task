@@ -64,7 +64,7 @@ export default function Review({ captureId }) {
   const fetchCaptures = async () => {
     try {
       const response = await fetch(
-        "http://localhost:5000/upload"
+        "https://capture-task.onrender.com/upload"
       );
       const data = await response.json();
       const needsReview = data.filter(
@@ -172,7 +172,7 @@ export default function Review({ captureId }) {
 
     try {
       const response = await fetch(
-        `http://localhost:5000/upload/${selected._id}/review`,
+        `https://capture-task.onrender.com/upload/${selected._id}/review`,
         {
           method: "PUT",
           headers: {
@@ -212,7 +212,7 @@ export default function Review({ captureId }) {
 
     try {
       const response = await fetch(
-        `http://localhost:5000/upload/${selected._id}/flag`,
+        `https://capture-task.onrender.com/upload/${selected._id}/flag`,
         {
           method: "PUT",
           headers: {
@@ -334,7 +334,7 @@ export default function Review({ captureId }) {
             <div style={{ marginBottom: "20px" }}>
               <h3>Original Image</h3>
               <img
-                src={`http://localhost:5000/${selected.imagePath.replace(/\\/g, "/")}`}
+                src={`https://capture-task.onrender.com/${selected.imagePath.replace(/\\/g, "/")}`}
                 alt="capture"
                 style={{
                   maxWidth: "100%",
