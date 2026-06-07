@@ -1,0 +1,138 @@
+.review-container {
+  display: flex;
+  gap: 20px;
+  padding: 20px;
+}
+
+.capture-list {
+  flex: 0.3;
+  overflow-y: auto;
+  max-height: 80vh;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.capture-item {
+  padding: 10px;
+  margin-bottom: 5px;
+  background-color: #f0f0f0;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.capture-item:hover {
+  background-color: #e0e0e0;
+}
+
+.capture-item.selected {
+  background-color: #007bff;
+  color: white;
+}
+
+.capture-item p {
+  margin: 5px 0;
+}
+
+.capture-item .small {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.review-content {
+  flex: 0.7;
+}
+
+.image-section {
+  margin-bottom: 20px;
+}
+
+.image-section img {
+  max-width: 100%;
+  max-height: 300px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.error-box {
+  background-color: #ffebee;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+  color: #d32f2f;
+}
+
+.field-group {
+  margin-bottom: 15px;
+}
+
+.field-group label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.field-group input {
+  display: block;
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.field-group input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+}
+
+.field-group input.error {
+  border: 2px solid #d32f2f;
+}
+
+.field-error {
+  color: #d32f2f;
+  font-size: 12px;
+  margin: 5px 0 0 0;
+}
+
+.confidence-badge {
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+.confidence-badge.low {
+  color: #d32f2f;
+}
+
+.confidence-badge.medium {
+  color: #ff9800;
+}
+
+.confidence-badge.high {
+  color: #4caf50;
+}
+
+.save-button {
+  padding: 12px 20px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 100%;
+  font-size: 16px;
+  font-weight: bold;
+  transition: background-color 0.2s;
+}
+
+.save-button:hover {
+  background-color: #218838;
+}
+
+.save-button:active {
+  background-color: #1e7e34;
+}
