@@ -219,3 +219,31 @@ It prioritizes:
 # Sample test
 
 <img width="1200" height="521" alt="EdYJ7x-WoAAUHZQ" src="https://github.com/user-attachments/assets/a2cc2cfb-847a-498d-88f0-ce6abacddb1a" />
+Respone:
+ 1. Raw OCR Output
+Subject to Lasalgaon Jurisdiction
+SML WEIGH - BRIDGE
+Takali Phata, Chandwad Road, Lasalgaon - 422 306 Dist - Nashik.
+Mob : 9422726231, 9422726233
+* FULLY COMPUTERIZED * 80 Mt. CAPACITY *
+
+SLIP NO. : 45282 VEHICLE NO. : WB.65C4612
+SUPPLIER : KGN MATERIAL :
+
+GROSS WT. : 42960 Kgs. Date IN : 19/07/2020 TIME IN : 09:21
+TARE WT. : 12420 Kgs. Date OUT :19/07/2020 TIME OUT : 01:42
+NET WT. : 30540 Kgs. 250/-
+
+Our responsibility ceases once the vehicle leaves the platform. SIGNATURE
+गो माता की रक्षा करे । * उत्तम आहार शाकाहार * गो माता की रक्षा करे ।
+
+2. LLM Output (Gemma) 
+{
+  "billNo": "45282",
+  "vehicleNumber": "WB.65C4612",
+  "grossWeight": "42960",
+  "tareWeight": "12420",
+  "netWeight": "30540"
+}
+ 3. Final Extracted Fields 
+FieldValueConfidenceStatusbillNo4528292%highvehicleNumberWB.65C461288%highgrossWeight4296095%hightareWeight1242094%highnetWeight3054095%high⚠️ 4. System DecisionStatus: auto_approvedReason:Image preprocessing successfully normalized the dot-matrix font and pink background.High OCR confidence (>85%) across all critical fields.Internal math validation passed perfectly (Gross Weight 42960 - Tare Weight 12420 = Net Weight 30540).
