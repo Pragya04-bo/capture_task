@@ -1,4 +1,4 @@
-Climitra Field Evidence Capture System
+ Climitra Field Evidence Capture System
 
 A mobile-first, offline-capable field evidence capture system for carbon credit verification workflows in biochar-based decarbonization projects.
 
@@ -33,19 +33,19 @@ npm start
 Environment variables
 MONGO_URI=<your_mongodb_connection>
 PORT=5000
-Core services used
+Core Services Used
 OCR: Tesseract.js
 LLM Extraction: Google GenAI (Gemma)
-Storage: MongoDB
-Offline storage: IndexedDB (frontend)
+Database: MongoDB
+Offline Storage: IndexedDB (Frontend)
 2. Architecture Overview
-High-level design
+High-Level Design
 
 The system is designed as a trust pipeline, not just an OCR tool.
 
 Mobile PWA (Frontend)
         ↓
-IndexedDB (Offline buffer)
+IndexedDB (Offline Buffer)
         ↓ sync
 Express API (Backend)
         ↓
@@ -63,170 +63,194 @@ Data Flow
 Field operator captures weighbridge / dispatch slip
 Stored locally if offline (IndexedDB)
 2. Sync Phase
-When network is available → batch upload
+When network is available → batch upload to backend
 3. Processing Pipeline
-Image normalization (light preprocessing only)
-OCR extraction via Tesseract
+Light image normalization
+OCR extraction using Tesseract.js
 LLM converts OCR text → structured JSON
-Confidence scoring per field
-Duplicate detection check
+Field-level confidence scoring
+Duplicate detection
 Stored in MongoDB with audit metadata
 4. Review Phase
-Reviewer sees:
-original image
-extracted fields
-confidence scores
-correction history
-Why this shape
+Reviewer views:
+Original image
+Extracted fields
+Confidence scores
+Correction history
+Why This Architecture
 
-This architecture prioritizes:
+This design prioritizes:
 
-Offline-first capture reliability
+Offline-first reliability
 Audit-grade traceability
-Separation of extraction and verification layers
-Future extensibility (queue system can be added later without redesign)
+Separation of extraction and review layers
+Future scalability (queue system can be added later without redesign)
 3. Key Tradeoffs
-1. No full async job queue (BullMQ/Kafka) vs synchronous pipeline
-Rejected option:
-Full background job queue system
-Why rejected:
-Adds infra complexity (Redis, workers, orchestration)
-Current load is small and predictable
-Latency is acceptable for MVP
-What we gave up:
-True parallel processing at scale
-Retry orchestration guarantees
+1. No async job queue vs synchronous pipeline
+Rejected:
+
+Full background job system (BullMQ / Kafka)
+
+Why:
+Adds infrastructure complexity (Redis, workers)
+MVP scale does not require it
+Latency is acceptable
+Tradeoff:
+❌ No true parallel processing
+❌ Limited retry orchestration
 Impact:
 
-System is currently synchronous but designed in a way that a queue can be inserted between OCR and LLM without structural changes.
+Designed so a queue can be added later between OCR and LLM without changing architecture.
 
 2. Lightweight preprocessing vs full OpenCV pipeline
 Rejected:
-Perspective correction + glare removal + advanced denoising pipeline
+
+Advanced preprocessing (glare removal, perspective correction, denoising)
+
 Why:
-Dataset-specific tuning required
-High engineering cost for marginal MVP gain
-What we gave up:
-Better accuracy on extreme blur/tilt cases
+Requires dataset tuning
+High engineering cost
+Limited MVP gain
+Tradeoff:
+❌ Worse performance on extreme blur/tilt images
 Impact:
 
-We rely on:
+Relies more on:
 
-basic normalization
-LLM robustness instead of image-heavy correction
+OCR baseline
+LLM robustness
 3. Tesseract + LLM hybrid vs LLM-only extraction
 Rejected:
+
 Direct image → LLM structured extraction
+
 Why:
-Cost + hallucination risk
-OCR provides deterministic grounding
-What we gave up:
-End-to-end simplicity
+Higher hallucination risk
+More expensive
+Less deterministic
+Tradeoff:
+Slightly more pipeline complexity
 Impact:
 
-Hybrid system improves:
+Improves:
 
 reliability
 field-level confidence grounding
-4. MongoDB-only storage vs event-sourcing system
+4. MongoDB-only vs event-sourcing system
 Rejected:
-full event sourcing architecture
+
+Full event-sourcing architecture
+
 Why:
-complexity not justified for MVP scale
-What we gave up:
-perfect reconstruction of system state over time
+Too complex for MVP scope
+Tradeoff:
+❌ No perfect replay of entire system state
 Impact:
 
-We still simulate auditability using:
+Simulated via:
 
 correction logs
-field-level history tracking
+field-level change history
 5. No semantic/vector search
 Rejected:
-embeddings + vector DB
+
+Vector DB + embeddings
+
 Why:
-problem is structured data, not semantic retrieval
-What we gave up:
-fuzzy document retrieval
+Problem is structured (not semantic search)
+Tradeoff:
+❌ No fuzzy retrieval
 Impact:
 
-Search is deterministic (vehicle number, date, weight filters), which is sufficient for audit workflows.
+Used deterministic filters:
 
+vehicle number
+date
+weight
 4. Assumptions
-Field documents are mostly English weighbridge slips and dispatch challans
-Vehicle numbers follow standard formats (state + alphanumeric)
-Operators may re-upload same document due to offline retries
-Network connectivity is unreliable or intermittent in field locations
-Reviewers are trusted internal users (not adversarial actors)
-MongoDB is sufficient for audit-scale traceability (no regulatory blockchain requirement)
-Image quality varies widely (blur, tilt, dust, low light)
-Latency of a few seconds in OCR is acceptable in workflow
-5. What breaks first at 100x scale
-1. OCR + LLM synchronous bottleneck
-Failure mode:
-Processing queue becomes slow under batch uploads
-Why:
-Tesseract + LLM calls are CPU/latency heavy
-No async worker separation yet
+Documents are mostly English weighbridge slips and dispatch challans
+Vehicle numbers follow consistent format patterns
+Duplicate uploads will happen due to offline sync retries
+Field connectivity is intermittent or unavailable
+Reviewers are trusted internal users
+MongoDB is sufficient for audit-grade storage
+Image quality varies (blur, tilt, dust, low light)
+OCR latency of a few seconds is acceptable
+5. What Breaks First at 100× Scale
+1. OCR + LLM pipeline bottleneck
+Problem:
+
+Processing slows down during bulk uploads
+
+Cause:
+Tesseract + LLM are CPU/latency heavy
+No async worker separation
 Fix:
-Introduce job queue (BullMQ / Redis workers)
+Introduce job queue (Redis + workers)
 Separate ingestion from processing
-2. MongoDB write + query pressure
-Failure mode:
-slow reviewer dashboard filtering
-Why:
-duplicate detection + audit logs increase write size
+2. MongoDB write/query pressure
+Problem:
+
+Dashboard filtering becomes slow
+
+Cause:
+growing audit logs
+duplicate detection overhead
 Fix:
 indexing (vehicleNumber, timestamp)
 partitioning by date/project
-archival strategy for older data
-3. Frontend polling inefficiency
-Failure mode:
-dashboard refresh becomes expensive
-Why:
-current polling-based update model
+archival strategy
+3. Frontend polling overhead
+Problem:
+
+Dashboard becomes inefficient
+
+Cause:
+polling-based updates
 Fix:
-WebSockets or event-driven updates
-4. Duplicate detection lookup cost
-Failure mode:
-slows with large historical dataset
+WebSockets / event-driven updates
+4. Duplicate detection slowdown
+Problem:
+
+Slower lookup with large dataset
+
 Fix:
-precomputed hash index (vehicle + weight + time bucket)
+hashed index (vehicle + weight + time window)
 caching layer
 6. Handling Binding Constraints
 Mobile-first capture
 
-The frontend is a PWA optimized for low-end Android devices. It supports camera-based capture and batch uploads. UI is simplified for field usage rather than desktop workflows. This ensures usability in non-ideal field environments.
+The system is designed as a PWA for low-end Android devices. It supports camera capture, batch uploads, and simplified UI flows optimized for field workers rather than desktop users.
 
 Intermittent connectivity
 
-All captures are first stored in IndexedDB locally. Uploads are deferred until connectivity is restored. Sync is automatic and retry-based. This prevents data loss even in complete offline scenarios.
+All captures are stored first in IndexedDB (offline-first design). Uploads are synced automatically when connectivity returns, ensuring zero data loss.
 
 Audit trail
 
-Every record stores:
+Every record includes:
 
 raw OCR output
 LLM structured output
 reviewer corrections
-timestamped field-level changes
-userId for every capture and correction
+timestamped field-level change history
+userId for all actions
 
-This ensures full reconstruction of how any value was derived, which is critical for carbon credit verification audits.
+This enables full reconstruction of every value for audit and compliance purposes.
 
 Visible confidence
 
-Each extracted field carries:
+Each field includes:
 
 OCR confidence score
-LLM alignment confidence
+LLM confidence alignment score
 human override flag
 
-The UI highlights low-confidence fields explicitly so reviewers focus attention where uncertainty is highest. This avoids false trust and improves review efficiency.
+Low-confidence fields are visually highlighted to guide reviewer attention.
 
 7. Conclusion
 
-This system is designed as a trust pipeline for carbon credit MRV workflows, not just an OCR extraction tool.
+This system is designed as a trust layer for carbon credit MRV workflows, not just an OCR tool.
 
 It prioritizes:
 
@@ -234,7 +258,6 @@ traceability over automation
 correctness over speed
 auditability over simplicity
 controlled uncertainty over false confidence
+Core Principle
 
-The core principle:
-
-The system does not just extract data — it preserves evidence integrity across extraction, correction, and verification stages.
+The system does not just extract data — it preserves evidence integrity across capture, extraction, correction, and verification stages.
