@@ -245,5 +245,200 @@ Our responsibility ceases once the vehicle leaves the platform. SIGNATURE
   "tareWeight": "12420",
   "netWeight": "30540"
 }
- 3. Final Extracted Fields 
-FieldValueConfidenceStatusbillNo4528292%highvehicleNumberWB.65C461288%highgrossWeight4296095%hightareWeight1242094%highnetWeight3054095%high⚠️ 4. System DecisionStatus: auto_approvedReason:Image preprocessing successfully normalized the dot-matrix font and pink background.High OCR confidence (>85%) across all critical fields.Internal math validation passed perfectly (Gross Weight 42960 - Tare Weight 12420 = Net Weight 30540).
+ 3. Final Extracted Fields  
+ [
+  {
+    "field": "billNo",
+    "value": "45282",
+    "confidence": "92%",
+    "status": "high"
+  },
+  {
+    "field": "vehicleNumber",
+    "value": "WB.65C4612",
+    "confidence": "88%",
+    "status": "high"
+  },
+  {
+    "field": "grossWeight",
+    "value": "42960",
+    "confidence": "95%",
+    "status": "high"
+  },
+  {
+    "field": "tareWeight",
+    "value": "12420",
+    "confidence": "94%",
+    "status": "high"
+  },
+  {
+    "field": "netWeight",
+    "value": "30540",
+    "confidence": "95%",
+    "status": "high"
+  }
+]
+Image preprocessing successfully normalized the dot-matrix font and pink background.
+
+High OCR confidence (>85%) across all critical fields.
+
+Internal math validation passed perfectly (Gross Weight 42960 - Tare Weight 12420 = Net Weight 30540).
+
+
+
+
+
+
+2 <img width="895" height="355" alt="deligh-1-1-35" src="https://github.com/user-attachments/assets/06cd6559-f5d8-4683-8402-a125a01a26a8" />
+ocr output 
+
+ABC WEIGHBRIDGE
+NEW CITY
+INDIA
+
+RST NO : 23 VEHICLE NO : MH 09 A  12 4
+CUSTOMER : GAGAN MATERIAL : STEEL
+COMMODITY : RODS SOURCE : NEW CITY
+CHALLAN NO : 9003 DESTINATION : OLD CITY
+ADDRESS : 89/1 A.B ROAD NEW CITY PHONE NO. : 982751146
+REMARK : NA
+----------------------------------------------------------------------
+GROSS Wt: 23915 kg Date:20/08/2015 Time:15:26
+TARE Wt: 158 0 kg Date:20/08/2015 Time:15:25
+NET Wt: 80 5 kg EIGHT ZERO THREE FI E kg
+----------------------------------------------------------------------
+Charges(1): Rs. 700 Charges(2): Rs. 500 Charges(total): Rs. 1200
+----------------------------------------------------------------------
+OPERATOR'S SIGNATURE:
+----------------------------------------------------------------------
+Contact for repairs at tel no
+
+
+2. LLM Output (Gemma)
+
+JSON
+{
+  "billNo": "23",
+  "vehicleNumber": "MH 09 A 12 4",
+  "grossWeight": "23915",
+  "tareWeight": "1580",
+  "netWeight": "805"
+}
+
+3.Final Extracted Fields
+[
+  {
+    "field": "billNo",
+    "value": "23",
+    "confidence": "92%",
+    "status": "high"
+  },
+  {
+    "field": "vehicleNumber",
+    "value": "MH 09 A 12 4",
+    "confidence": "55%",
+    "status": "low"
+  },
+  {
+    "field": "grossWeight",
+    "value": "23915",
+    "confidence": "94%",
+    "status": "high"
+  },
+  {
+    "field": "tareWeight",
+    "value": "1580",
+    "confidence": "42%",
+    "status": "low"
+  },
+  {
+    "field": "netWeight",
+    "value": "805",
+    "confidence": "45%",
+    "status": "low"
+  }
+]
+4. System Decision
+Status: needs_review
+Reason:
+
+Faded printer ink caused low confidence markers (<50%) on both weight channels.
+
+Mathematical validation verification failed (23915 - 1580 !== 805).
+
+
+
+
+
+<img width="912" height="518" alt="image" src="https://github.com/user-attachments/assets/d6485fd3-4fe7-40e7-ab89-aa045f2fc1ec" />
+
+
+Raw OCR Output
+S.ML WEIGHBRIDGE
+Takal.i Phata, Chan.dwad Road, Lasalgaon
+
+SLIP NO.   : 45.282         VEHICLE NO. : WB65C.4612
+SUPPLIER   : K.GN           MATERIAL    : S.TEEL
+
+GROSS WT : 42.960 KGS
+TARE WT  : 124.20 KGS
+NET WT   : 30.540 KGS
+. LLM Output (Gemma)
+{
+  "billNo": "45.282",
+  "vehicleNumber": "WB65C.4612",
+  "grossWeight": "42.960",
+  "tareWeight": "124.20",
+  "netWeight": "30.540"
+}
+
+Final Extracted Fields
+[
+  {
+    "field": "billNo",
+    "value": "45.282",
+    "confidence": "62%",
+    "status": "low"
+  },
+  {
+    "field": "vehicleNumber",
+    "value": "WB65C.4612",
+    "confidence": "78%",
+    "status": "low"
+  },
+  {
+    "field": "grossWeight",
+    "value": "42.960",
+    "confidence": "68%",
+    "status": "low"
+  },
+  {
+    "field": "tareWeight",
+    "value": "124.20",
+    "confidence": "64%",
+    "status": "low"
+  },
+  {
+    "field": "netWeight",
+    "value": "30.540",
+    "confidence": "67%",
+    "status": "low"
+  }
+]
+
+
+
+System Decision
+Status: needs_review
+Reason:
+
+The heavy procedural dust noise and speckling caused the OCR engine to hallucinate decimal points (.) inside integer values (weights and slip number).
+
+While the math technically still works (42.960 - 124.20 !== 30.540, it actually fails because of the misplaced decimal in 124.20), the presence of floating-point numbers in fields that strictly expect integers drops the confidence score.
+
+The system correctly halts auto-approval and queues the ticket for a human operator to verify and clean the noisy strings.
+
+
+
+
+
