@@ -158,17 +158,34 @@ router.post("/", upload.single("image"), async (req, res) => {
   try {
     console.log("Processing:", req.file.path);
 
+    // const result = await Tesseract.recognize(
+    //   req.file.path,
+    //   "eng"
+    // );
+
+    // let extractedText = result.data.text;
+    // const confidence = result.data.confidence;
+    // const words = result.data.words || [];
+
+    // console.log("===== OCR OUTPUT =====");
+    // console.log(extractedText);
     const result = await Tesseract.recognize(
-      req.file.path,
-      "eng"
-    );
+  req.file.path,
+  "eng"
+);
 
-    let extractedText = result.data.text;
-    const confidence = result.data.confidence;
-    const words = result.data.words || [];
+console.log("===== RAW OCR TEXT =====");
+console.log(result.data.text);
 
-    console.log("===== OCR OUTPUT =====");
-    console.log(extractedText);
+console.log("===== OCR CONFIDENCE =====");
+console.log(result.data.confidence);
+
+let extractedText = result.data.text;
+const confidence = result.data.confidence;
+const words = result.data.words || [];
+
+console.log("===== OCR OUTPUT =====");
+console.log(extractedText);
 
     extractedText = extractedText.replace(
       /\s+/g,
