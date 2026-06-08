@@ -219,73 +219,8 @@ It prioritizes:
 # Sample test
 
 <img width="1200" height="521" alt="EdYJ7x-WoAAUHZQ" src="https://github.com/user-attachments/assets/a2cc2cfb-847a-498d-88f0-ce6abacddb1a" />
-Respone:
- 1. Raw OCR Output
-Subject to Lasalgaon Jurisdiction
-SML WEIGH - BRIDGE
-Takali Phata, Chandwad Road, Lasalgaon - 422 306 Dist - Nashik.
-Mob : 9422726231, 9422726233
-* FULLY COMPUTERIZED * 80 Mt. CAPACITY *
-
-SLIP NO. : 45282 VEHICLE NO. : WB.65C4612
-SUPPLIER : KGN MATERIAL :
-
-GROSS WT. : 42960 Kgs. Date IN : 19/07/2020 TIME IN : 09:21
-TARE WT. : 12420 Kgs. Date OUT :19/07/2020 TIME OUT : 01:42
-NET WT. : 30540 Kgs. 250/-
-
-Our responsibility ceases once the vehicle leaves the platform. SIGNATURE
-गो माता की रक्षा करे । * उत्तम आहार शाकाहार * गो माता की रक्षा करे ।
-
-2. LLM Output (Gemma) 
-{
-  "billNo": "45282",
-  "vehicleNumber": "WB.65C4612",
-  "grossWeight": "42960",
-  "tareWeight": "12420",
-  "netWeight": "30540"
-}
- 3. Final Extracted Fields  
- [
-  {
-    "field": "billNo",
-    "value": "45282",
-    "confidence": "92%",
-    "status": "high"
-  },
-  {
-    "field": "vehicleNumber",
-    "value": "WB.65C4612",
-    "confidence": "88%",
-    "status": "high"
-  },
-  {
-    "field": "grossWeight",
-    "value": "42960",
-    "confidence": "95%",
-    "status": "high"
-  },
-  {
-    "field": "tareWeight",
-    "value": "12420",
-    "confidence": "94%",
-    "status": "high"
-  },
-  {
-    "field": "netWeight",
-    "value": "30540",
-    "confidence": "95%",
-    "status": "high"
-  }
-]
-Image preprocessing successfully normalized the dot-matrix font and pink background.
-
-High OCR confidence (>85%) across all critical fields.
-
-Internal math validation passed perfectly (Gross Weight 42960 - Tare Weight 12420 = Net Weight 30540).
-
-
-
+ <img width="652" height="907" alt="image" src="https://github.com/user-attachments/assets/29a9b29d-f876-44bb-87e6-15be824cd986" />
+<img width="642" height="743" alt="image" src="https://github.com/user-attachments/assets/d67de498-4208-4505-b0e3-cc6dc7f8a58e" />
 
 
 
