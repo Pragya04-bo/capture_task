@@ -451,7 +451,7 @@ The system correctly halts auto-approval and queues the ticket for a human opera
  
 
 System Decision
-Status: failed
+Status: Needs Review
 Reason:
 
 Handwriting Failure: Standard document OCR engines are trained on printed text. They fail completely on heavy cursive handwriting, interpreting swooping pen strokes as slashes (/), parentheses, or random letters.
