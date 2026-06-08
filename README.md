@@ -242,78 +242,15 @@ Mathematical validation verification failed (23915 - 1580 !== 805).
 
 
 <img width="912" height="518" alt="image" src="https://github.com/user-attachments/assets/d6485fd3-4fe7-40e7-ab89-aa045f2fc1ec" />
+ <img width="617" height="821" alt="image" src="https://github.com/user-attachments/assets/b2299623-a9be-4223-9b72-7d4145ae2573" />
+ <img width="612" height="205" alt="image" src="https://github.com/user-attachments/assets/cc588439-1ef8-4a77-9ba5-35640fad976e" />
 
-
-Raw OCR Output
-S.ML WEIGHBRIDGE
-Takal.i Phata, Chan.dwad Road, Lasalgaon
-
-SLIP NO.   : 45.282         VEHICLE NO. : WB65C.4612
-SUPPLIER   : K.GN           MATERIAL    : S.TEEL
-
-GROSS WT : 42.960 KGS
-TARE WT  : 124.20 KGS
-NET WT   : 30.540 KGS
-. LLM Output (Gemma)
-{
-  "billNo": "45.282",
-  "vehicleNumber": "WB65C.4612",
-  "grossWeight": "42.960",
-  "tareWeight": "124.20",
-  "netWeight": "30.540"
-}
-
-Final Extracted Fields
-[
-  {
-    "field": "billNo",
-    "value": "45.282",
-    "confidence": "62%",
-    "status": "low"
-  },
-  {
-    "field": "vehicleNumber",
-    "value": "WB65C.4612",
-    "confidence": "78%",
-    "status": "low"
-  },
-  {
-    "field": "grossWeight",
-    "value": "42.960",
-    "confidence": "68%",
-    "status": "low"
-  },
-  {
-    "field": "tareWeight",
-    "value": "124.20",
-    "confidence": "64%",
-    "status": "low"
-  },
-  {
-    "field": "netWeight",
-    "value": "30.540",
-    "confidence": "67%",
-    "status": "low"
-  }
-]
-
-
-
-System Decision
-Status: needs_review
-Reason:
-
-The heavy procedural dust noise and speckling caused the OCR engine to hallucinate decimal points (.) inside integer values (weights and slip number).
-
-While the math technically still works (42.960 - 124.20 !== 30.540, it actually fails because of the misplaced decimal in 124.20), the presence of floating-point numbers in fields that strictly expect integers drops the confidence score.
-
-The system correctly halts auto-approval and queues the ticket for a human operator to verify and clean the noisy strings.
 
 
 
 
  
-<img width="1144" height="1794" alt="watermark" src="https://github.com/user-attachments/assets/1ffb53e4-83b9-4f57-a7da-94e5dc09f613" />
+4.<img width="1144" height="1794" alt="watermark" src="https://github.com/user-attachments/assets/1ffb53e4-83b9-4f57-a7da-94e5dc09f613" />
  <img width="921" height="388" alt="image" src="https://github.com/user-attachments/assets/a13f4534-c012-4500-8fee-e4221227e2db" />
  <img width="1382" height="325" alt="image" src="https://github.com/user-attachments/assets/b5dd7a6f-9141-4f2f-93a0-414767a07b80" />
 
