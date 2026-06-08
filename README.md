@@ -290,74 +290,10 @@ Internal math validation passed perfectly (Gross Weight 42960 - Tare Weight 1242
 
 
 2 <img width="895" height="355" alt="deligh-1-1-35" src="https://github.com/user-attachments/assets/06cd6559-f5d8-4683-8402-a125a01a26a8" />
-ocr output 
-
-ABC WEIGHBRIDGE
-NEW CITY
-INDIA
-
-RST NO : 23 VEHICLE NO : MH 09 A  12 4
-CUSTOMER : GAGAN MATERIAL : STEEL
-COMMODITY : RODS SOURCE : NEW CITY
-CHALLAN NO : 9003 DESTINATION : OLD CITY
-ADDRESS : 89/1 A.B ROAD NEW CITY PHONE NO. : 982751146
-REMARK : NA
-----------------------------------------------------------------------
-GROSS Wt: 23915 kg Date:20/08/2015 Time:15:26
-TARE Wt: 158 0 kg Date:20/08/2015 Time:15:25
-NET Wt: 80 5 kg EIGHT ZERO THREE FI E kg
-----------------------------------------------------------------------
-Charges(1): Rs. 700 Charges(2): Rs. 500 Charges(total): Rs. 1200
-----------------------------------------------------------------------
-OPERATOR'S SIGNATURE:
-----------------------------------------------------------------------
-Contact for repairs at tel no
+ <img width="645" height="898" alt="image" src="https://github.com/user-attachments/assets/cd5e6874-08e2-4836-9b80-bc4f16a815da" />
+ <img width="626" height="347" alt="image" src="https://github.com/user-attachments/assets/553ed846-0982-49ba-9e61-8237397f57c6" />
 
 
-2. LLM Output (Gemma)
-
-JSON
-{
-  "billNo": "23",
-  "vehicleNumber": "MH 09 A 12 4",
-  "grossWeight": "23915",
-  "tareWeight": "1580",
-  "netWeight": "805"
-}
-
-3.Final Extracted Fields
-[
-  {
-    "field": "billNo",
-    "value": "23",
-    "confidence": "92%",
-    "status": "high"
-  },
-  {
-    "field": "vehicleNumber",
-    "value": "MH 09 A 12 4",
-    "confidence": "55%",
-    "status": "low"
-  },
-  {
-    "field": "grossWeight",
-    "value": "23915",
-    "confidence": "94%",
-    "status": "high"
-  },
-  {
-    "field": "tareWeight",
-    "value": "1580",
-    "confidence": "42%",
-    "status": "low"
-  },
-  {
-    "field": "netWeight",
-    "value": "805",
-    "confidence": "45%",
-    "status": "low"
-  }
-]
 4. System Decision
 Status: needs_review
 Reason:
