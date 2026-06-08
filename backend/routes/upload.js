@@ -312,24 +312,69 @@ router.get("/:id", async (req, res) => {
   res.json(data);
 });
 
-router.put("/:id/review", async (req, res) => {
+ router.put("/:id/review", async (req, res) => {
   const { corrections } = req.body;
 
   const image = await Image.findById(req.params.id);
-  if (!image) return res.status(404).json({ message: "Not found" });
 
-  const updated = await Image.findByIdAndUpdate(
-    req.params.id,
-    {
-      extractedFields: corrections,
-      reviewed: true,
-      reviewedAt: new Date(),
-      processingStatus: "reviewed",
-    },
-    { new: true }
-  );
+  if (!image) {
+    return res.status(404).json({
+      message: "Not found",
+    });
+  }
 
-  res.json(updated);
+  for (const field in corrections) {
+    const oldValue =
+      image.extractedFields?.[field]?.value || "";
+
+    const newValue =
+      corrections?.[field]?.value || "";
+
+    if (oldValue !== newValue) {
+      image.reviewerCorrections.push({
+        field,
+        oldValue,
+        newValue,
+        correctedAt: new Date(),
+      });
+
+      if (
+        !image.humanCorrectedFields.includes(field)
+      ) {
+        image.humanCorrectedFields.push(field);
+      }
+
+      image.extractedFields[field].value =
+        newValue;
+
+      image.extractedFields[
+        field
+      ].isHumanCorrected = true;
+
+      image.auditLogs.push({
+        action: "FIELD_CORRECTED",
+        field,
+        oldValue,
+        newValue,
+        performedBy: "reviewer",
+        timestamp: new Date(),
+      });
+    }
+  }
+
+  image.reviewed = true;
+  image.reviewedAt = new Date();
+  image.processingStatus = "reviewed";
+
+  image.auditLogs.push({
+    action: "REVIEW_COMPLETED",
+    performedBy: "reviewer",
+    timestamp: new Date(),
+  });
+
+  await image.save();
+
+  res.json(image);
 });
 
 router.put("/:id/flag", async (req, res) => {

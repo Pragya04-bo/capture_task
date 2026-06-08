@@ -159,40 +159,78 @@ export default function Review({ captureId }) {
 
     setErrors(newErrors);
 
-    const hasErrors = Object.values(newErrors).some(
-      (err) =>
-        (Array.isArray(err) && err.length > 0) ||
-        err
-    );
-
+    const hasErrors = Object.values(newErrors).some((err) => {
+  if (Array.isArray(err)) return err.length > 0;
+  return !!err;
+});
+console.log(newErrors);
+console.log("hasErrors:", hasErrors);
     if (hasErrors) {
+       console.trace("Please fix errors triggered");
       alert("Please fix errors");
       return;
     }
 
     try {
-      const response = await fetch(
-        `https://capture-task.onrender.com/upload/${selected._id}/review`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            corrections: {
-              vehicleNumber: {
-                value: vehicleNumber,
-              },
-              billNo: { value: billNo },
-              grossWeight: {
-                value: grossWeight,
-              },
-              tareWeight: { value: tareWeight },
-              netWeight: { value: netWeight },
-            },
-          }),
-        }
-      );
+       const corrections = {};
+
+if (
+  vehicleNumber !==
+  selected.extractedFields?.vehicleNumber?.value
+) {
+  corrections.vehicleNumber = {
+    value: vehicleNumber,
+  };
+}
+
+if (
+  billNo !==
+  selected.extractedFields?.billNo?.value
+) {
+  corrections.billNo = {
+    value: billNo,
+  };
+}
+
+if (
+  grossWeight !==
+  selected.extractedFields?.grossWeight?.value
+) {
+  corrections.grossWeight = {
+    value: grossWeight,
+  };
+}
+
+if (
+  tareWeight !==
+  selected.extractedFields?.tareWeight?.value
+) {
+  corrections.tareWeight = {
+    value: tareWeight,
+  };
+}
+
+if (
+  netWeight !==
+  selected.extractedFields?.netWeight?.value
+) {
+  corrections.netWeight = {
+    value: netWeight,
+  };
+}
+
+const response = await fetch(
+  `https://capture-task.onrender.com/upload/${selected._id}/review`,
+  {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      corrections,
+    }),
+  }
+);
 
       if (response.ok) {
         alert("✅ Saved!");
