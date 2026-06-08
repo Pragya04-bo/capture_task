@@ -443,68 +443,12 @@ The system correctly halts auto-approval and queues the ticket for a human opera
 
  
 <img width="1144" height="1794" alt="watermark" src="https://github.com/user-attachments/assets/1ffb53e4-83b9-4f57-a7da-94e5dc09f613" />
-ocr output
-
-32
-Coleraine Quay Weighbridge.
-¢ / / /la / O L O L
-/ / Uudeto onL
-From ....................
-
-Loads of Cwts. | Qrs | Lbs |Cwts. |Qrs|Lbs
-S/nuvv)
-Northern Irelanmd Gommunity Archive
-/ / 7 /2/ U ,// L / ( L. 7 / , > / O L O L
-Gross 24 2 7 /2 0 2/
-Care /2 0 2/
-Nt. Wt. /2 / /4
-T. Martin, Clerk
-llm output
-
-{
-  "billNo": "32",
-  "vehicleNumber": "",
-  "grossWeight": "",
-  "tareWeight": "",
-  "netWeight": ""
-}
+ <img width="921" height="388" alt="image" src="https://github.com/user-attachments/assets/a13f4534-c012-4500-8fee-e4221227e2db" />
+ <img width="1382" height="325" alt="image" src="https://github.com/user-attachments/assets/b5dd7a6f-9141-4f2f-93a0-414767a07b80" />
 
 
- Final Extracted Fields 
 
-JSON
-[
-  {
-    "field": "billNo",
-    "value": "32",
-    "confidence": "85%",
-    "status": "high"
-  },
-  {
-    "field": "vehicleNumber",
-    "value": "",
-    "confidence": "0%",
-    "status": "missing"
-  },
-  {
-    "field": "grossWeight",
-    "value": "",
-    "confidence": "12%",
-    "status": "missing"
-  },
-  {
-    "field": "tareWeight",
-    "value": "",
-    "confidence": "8%",
-    "status": "missing"
-  },
-  {
-    "field": "netWeight",
-    "value": "",
-    "confidence": "10%",
-    "status": "missing"
-  }
-]
+ 
 
 System Decision
 Status: failed
