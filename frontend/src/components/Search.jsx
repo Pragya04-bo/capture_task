@@ -606,6 +606,88 @@ export default function Search() {
                     c.uploadedAt
                   ).toLocaleDateString()}
                 </p>
+                {/* Human Corrected Badge */}
+{c.humanCorrectedFields?.length > 0 && (
+  <div
+    style={{
+      backgroundColor: "#2196f3",
+      color: "white",
+      padding: "4px 8px",
+      borderRadius: "4px",
+      marginTop: "8px",
+      marginBottom: "8px",
+      fontSize: "12px",
+      display: "inline-block",
+      fontWeight: "bold",
+    }}
+  >
+    👤 Human Corrected ({c.humanCorrectedFields.length})
+  </div>
+)}
+{c.humanCorrectedFields?.length > 0 && (
+  <div
+    style={{
+      marginTop: "8px",
+      padding: "8px",
+      backgroundColor: "#f8f9fa",
+      borderRadius: "6px",
+      fontSize: "12px",
+    }}
+  >
+    <strong>Corrected Fields:</strong>
+
+    <ul style={{ margin: "6px 0 0 15px" }}>
+      {c.humanCorrectedFields.map((field) => (
+        <li key={field}>{field}</li>
+      ))}
+    </ul>
+  </div>
+)}{c.auditLogs?.length > 0 && (
+  <div
+    style={{
+      marginTop: "10px",
+      borderTop: "1px solid #ddd",
+      paddingTop: "8px",
+      fontSize: "11px",
+    }}
+  >
+    <strong>Audit Trail</strong>
+
+    {c.auditLogs
+      .filter(log => log.action === "FIELD_CORRECTED")
+      .map((log) => (
+        <div
+          key={log._id}
+          style={{
+            marginTop: "5px",
+            padding: "5px",
+            backgroundColor: "#fff3cd",
+            borderRadius: "4px",
+          }}
+        >
+          <div>
+            <strong>{log.field}</strong>
+          </div>
+
+          <div>
+            OCR: "{log.oldValue || "empty"}"
+          </div>
+
+          <div>
+            Human: "{log.newValue}"
+          </div>
+
+          <div>
+            By: {log.performedBy}
+          </div>
+
+          <div>
+            {new Date(log.timestamp).toLocaleString()}
+          </div>
+        </div>
+      ))}
+  </div>
+)}
               </div>
             </div>
           ))}

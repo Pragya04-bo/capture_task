@@ -180,7 +180,12 @@ await worker.setParameters({
 
 // OCR on enhanced image
 const result = await worker.recognize(enhancedPath);
+console.log("OCR Confidence:", result.data.confidence);
 
+console.log("Words:");
+result.data.words.forEach((word) => {
+  console.log(word.text, "=>", word.confidence);
+});
     let extractedText = result.data.text;
     const confidence = result.data.confidence;
     const words = result.data.words || [];

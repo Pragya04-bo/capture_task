@@ -285,7 +285,27 @@ const response = await fetch(
     if (isAutoApproved) return "auto-approved";
     return "extracted";
   };
+const ConfidenceBadge = ({ confidence }) => {
+  let color = "#4caf50";
 
+  if (confidence < 70) color = "#f44336";
+  else if (confidence < 90) color = "#ff9800";
+
+  return (
+    <span
+      style={{
+        backgroundColor: color,
+        color: "white",
+        padding: "3px 8px",
+        borderRadius: "12px",
+        fontSize: "11px",
+        fontWeight: "bold",
+      }}
+    >
+      {confidence || 0}% Confidence
+    </span>
+  );
+};
   if (loading) return <p>Loading...</p>;
 
   return (
@@ -418,23 +438,37 @@ const response = await fetch(
 
               {/* Vehicle Number */}
               <div style={{ marginBottom: "15px" }}>
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent:
-                      "space-between",
-                    alignItems: "center",
-                  }}
-                >
-                  <label>
-                    <strong>Vehicle Number</strong>
-                  </label>
-                  <FieldBadge
-                    status={getFieldStatus(
-                      "vehicleNumber"
-                    )}
-                  />
-                </div>
+            <div
+  style={{
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+  }}
+>
+  <label>
+    <strong>Vehicle Number</strong>
+  </label>
+
+  <div
+    style={{
+      display: "flex",
+      gap: "8px",
+      alignItems: "center",
+    }}
+  >
+    <ConfidenceBadge
+      confidence={
+        selected?.extractedFields?.vehicleNumber
+          ?.confidence
+      }
+    />
+    <FieldBadge
+      status={getFieldStatus(
+        "vehicleNumber"
+      )}
+    />
+  </div>
+</div>
                 <input
                   value={vehicleNumber}
                   onChange={(e) => {
@@ -502,21 +536,32 @@ const response = await fetch(
 
               {/* Bill No */}
               <div style={{ marginBottom: "15px" }}>
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent:
-                      "space-between",
-                    alignItems: "center",
-                  }}
-                >
-                  <label>
-                    <strong>Bill No</strong>
-                  </label>
-                  <FieldBadge
-                    status={getFieldStatus("billNo")}
-                  />
-                </div>
+             <div
+  style={{
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+  }}
+>
+  <label>
+    <strong>Bill No</strong>
+  </label>
+
+  <div
+    style={{
+      display: "flex",
+      gap: "8px",
+      alignItems: "center",
+    }}
+  >
+    <ConfidenceBadge
+      confidence={
+        selected?.extractedFields?.billNo?.confidence
+      }
+    />
+    <FieldBadge status={getFieldStatus("billNo")} />
+  </div>
+</div>
                 <input
                   value={billNo}
                   onChange={(e) => {
@@ -557,22 +602,31 @@ const response = await fetch(
               {/* Gross Weight */}
               <div style={{ marginBottom: "15px" }}>
                 <div
-                  style={{
-                    display: "flex",
-                    justifyContent:
-                      "space-between",
-                    alignItems: "center",
-                  }}
-                >
-                  <label>
-                    <strong>Gross Weight (kg)</strong>
-                  </label>
-                  <FieldBadge
-                    status={getFieldStatus(
-                      "grossWeight"
-                    )}
-                  />
-                </div>
+  style={{
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+  }}
+>
+  <label>
+    <strong>Gross Weight</strong>
+  </label>
+
+  <div
+    style={{
+      display: "flex",
+      gap: "8px",
+      alignItems: "center",
+    }}
+  >
+    <ConfidenceBadge
+      confidence={
+        selected?.extractedFields?.grossWeight?.confidence
+      }
+    />
+    <FieldBadge status={getFieldStatus("grossWeight")} />
+  </div>
+</div>
                 <input
                   value={grossWeight}
                   onChange={(e) => {
@@ -616,23 +670,32 @@ const response = await fetch(
 
               {/* Tare Weight */}
               <div style={{ marginBottom: "15px" }}>
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent:
-                      "space-between",
-                    alignItems: "center",
-                  }}
-                >
-                  <label>
-                    <strong>Tare Weight (kg)</strong>
-                  </label>
-                  <FieldBadge
-                    status={getFieldStatus(
-                      "tareWeight"
-                    )}
-                  />
-                </div>
+               <div
+  style={{
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+  }}
+>
+  <label>
+    <strong>Tare Weight</strong>
+  </label>
+
+  <div
+    style={{
+      display: "flex",
+      gap: "8px",
+      alignItems: "center",
+    }}
+  >
+    <ConfidenceBadge
+      confidence={
+        selected?.extractedFields?.tareWeight?.confidence
+      }
+    />
+    <FieldBadge status={getFieldStatus("tareWeight")} />
+  </div>
+</div>
                 <input
                   value={tareWeight}
                   onChange={(e) => {
@@ -675,22 +738,31 @@ const response = await fetch(
               {/* Net Weight */}
               <div style={{ marginBottom: "15px" }}>
                 <div
-                  style={{
-                    display: "flex",
-                    justifyContent:
-                      "space-between",
-                    alignItems: "center",
-                  }}
-                >
-                  <label>
-                    <strong>Net Weight (kg)</strong>
-                  </label>
-                  <FieldBadge
-                    status={getFieldStatus(
-                      "netWeight"
-                    )}
-                  />
-                </div>
+  style={{
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+  }}
+>
+  <label>
+    <strong>Net Weight</strong>
+  </label>
+
+  <div
+    style={{
+      display: "flex",
+      gap: "8px",
+      alignItems: "center",
+    }}
+  >
+    <ConfidenceBadge
+      confidence={
+        selected?.extractedFields?.netWeight?.confidence
+      }
+    />
+    <FieldBadge status={getFieldStatus("netWeight")} />
+  </div>
+</div>
                 <input
                   value={netWeight}
                   onChange={(e) => {
